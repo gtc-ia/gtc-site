@@ -1,68 +1,53 @@
-import dynamic from 'next/dynamic';
-import Head from 'next/head';
-import Image from 'next/image';
+import dynamic from 'next/dynamic'
+import HeroOverlay from '@/components/HeroOverlay'
 
-// Dynamically import the 3D hero to avoid SSR and heavy load on first render.
-const Hero3D = dynamic(() => import('../components/Hero3D'), {
+// 3D-Canvas грузим лениво (без SSR). Пока грузится — градиентный фон.
+const Hero3DCanvas = dynamic(() => import('@/components/Hero3DCanvas'), {
   ssr: false,
   loading: () => (
-    <div className="relative h-[400px] w-full flex items-center justify-center bg-gradient-to-b from-blue-50 to-white">
-      <Image
-        src="/fallback-hero.png"
-        alt="GTC AI platform hero"
-        layout="fill"
-        objectFit="cover"
-        className="opacity-50"
-      />
-    </div>
-  )
-});
+    <div
+      style={{
+        position: 'absolute',
+        inset: 0,
+        background: 'linear-gradient(180deg, #0b1220 0%, #0e1a33 100%)',
+      }}
+    />
+  ),
+})
 
 export default function Home() {
   return (
-    <>
-      <Head>
-        <title>GTC | AI Platform for Mindful Purchasing</title>
-        <meta
-          name="description"
-          content="Smarter B2B decisions with GTC AI: AI consultant, news insights and integrated payments."
+    <main style={{ minHeight: '100vh', background: '#0b1220', color: '#fff' }}>
+      <section
+        style={{
+          position: 'relative',
+          overflow: 'hidden',
+          minHeight: '520px',
+        }}
+      >
+        {/* 3D-канвас под текстом */}
+        <div style={{ position: 'absolute', inset: 0 }}>
+          <Hero3DCanvas />
+        </div>
+
+        {/* DOM-оверлей с H1/подзаголовком/CTA */}
+        <HeroOverlay />
+
+        {/* Мягкая подложка снизу для читаемости */}
+        <div
+          style={{
+            pointerEvents: 'none',
+            position: 'absolute',
+            left: 0,
+            right: 0,
+            bottom: 0,
+            height: '160px',
+            background: 'linear-gradient(0deg, #0b1220, rgba(11,18,32,0))',
+          }}
         />
-      </Head>
-      <main className="min-h-screen flex flex-col items-center justify-start">
-        <section className="w-full flex flex-col items-center justify-center text-center pt-12 px-4">
-          <h1 className="text-4xl md:text-6xl font-bold mb-4">AI platform for mindful purchasing</h1>
-          <p className="max-w-xl text-gray-600 mb-8">
-            Smarter B2B decisions: AI consultant, news insights, integrated payments.
-          </p>
-          <div className="flex space-x-4 mb-10">
-            <a
-              href="https://t.me/Procurement_AnalystBot"
-              className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Open AI Bot
-            </a>
-            <a
-              href="https://app.gtstor.com/news/"
-              className="px-6 py-3 bg-green-600 text-white rounded-md hover:bg-green-700 transition"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Read News
-            </a>
-            <a
-              href="https://pay.gtstor.com/payment.php"
-              className="px-6 py-3 bg-purple-600 text-white rounded-md hover:bg-purple-700 transition"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Subscribe
-            </a>
-          </div>
-        </section>
-        <Hero3D />
-      </main>
-    </>
-  );
+      </section>
+
+      {/* Ниже можете разместить статический контент секций */}
+    </main>
+  )
 }
