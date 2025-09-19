@@ -1,7 +1,11 @@
 {
   "compilerOptions": {
     "target": "es5",
-    "lib": ["dom", "dom.iterable", "esnext"],
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
     "allowJs": true,
     "skipLibCheck": true,
     "strict": false,
@@ -16,6 +20,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
+<<<<<<< HEAD
       "@/components/*": ["src/components/*"],
       "@/pages/*": ["src/pages/*"]
     },
@@ -24,3 +29,30 @@
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", "**/*.d.ts", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]
 }
+=======
+      "@/components/*": [
+        "src/components/*"
+      ],
+      "@/pages/*": [
+        "src/pages/*"
+      ]
+    },
+    "types": [
+      "@types/node",
+      "@types/react",
+      "@types/react-dom",
+      "@react-three/fiber"
+    ]
+  },
+  "include": [
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    "**/*.d.ts",
+    ".next/types/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}
+>>>>>>> af07d59 (chore(ts): include @react-three/fiber types and *.d.ts)
