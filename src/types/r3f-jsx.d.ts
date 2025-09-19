@@ -1,7 +1,11 @@
-import { ThreeElements } from '@react-three/fiber';
+import '@react-three/fiber';
+
+// Локальная декларация на случай, если окружение не подхватило типы R3F
 declare global {
   namespace JSX {
-    interface IntrinsicElements extends ThreeElements {}
+    interface IntrinsicElements {
+      group: any;
+    }
   }
 }
 export {};
