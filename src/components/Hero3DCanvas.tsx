@@ -17,7 +17,6 @@ function Scene() {
 
   return (
     <>
-      <color attach="background" args={['#0b1220']} />
       <ambientLight intensity={0.6} />
       <pointLight position={[6, 6, 6]} intensity={50} />
       <pointLight position={[-6, -6, -6]} intensity={20} />
@@ -55,7 +54,12 @@ function Scene() {
 
 export default function Hero3DCanvas() {
   return (
-    <Canvas camera={{ position: [0, 0, 8], fov: 50 }} dpr={[1, 2]} gl={{ antialias: true }}>
+    <Canvas
+      camera={{ position: [0, 0, 8], fov: 50 }}
+      dpr={[1, 2]}
+      gl={{ antialias: true }}
+      style={{ background: '#0b1220' }}
+    >
       <Scene />
     </Canvas>
   )
