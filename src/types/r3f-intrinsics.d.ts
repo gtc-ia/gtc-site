@@ -1,18 +1,29 @@
-import '@react-three/fiber';
+import '@react-three/fiber'
+import type { ThreeElements } from '@react-three/fiber'
 
 declare global {
   namespace JSX {
     interface IntrinsicElements {
-      // геометрии/материалы/свет/меши, которые есть в нашем Hero3DCanvas
-      mesh: any;
-      sphereGeometry: any;
-      torusGeometry: any;
-      meshStandardMaterial: any;
-      ambientLight: any;
-      pointLight: any;
-      // если когда-то вернётся <group/>, он уже перекрыт в другом d.ts
+      mesh: ThreeElements['mesh']
+      sphereGeometry: ThreeElements['sphereGeometry']
+      torusGeometry: ThreeElements['torusGeometry']
+      meshStandardMaterial: ThreeElements['meshStandardMaterial']
+      ambientLight: ThreeElements['ambientLight']
+      pointLight: ThreeElements['pointLight']
+    }
+  }
+  namespace React {
+    namespace JSX {
+      interface IntrinsicElements {
+        mesh: ThreeElements['mesh']
+        sphereGeometry: ThreeElements['sphereGeometry']
+        torusGeometry: ThreeElements['torusGeometry']
+        meshStandardMaterial: ThreeElements['meshStandardMaterial']
+        ambientLight: ThreeElements['ambientLight']
+        pointLight: ThreeElements['pointLight']
+      }
     }
   }
 }
 
-export {};
+export {}
