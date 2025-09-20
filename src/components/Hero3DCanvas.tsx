@@ -1,18 +1,3 @@
-// @ts-nocheck
-/* Локальная декларация IntrinsicElements — чтобы Vercel TS не падал на R3F-тегах */
-declare global {
-  namespace JSX {
-    interface IntrinsicElements {
-      mesh: any;
-      sphereGeometry: any;
-      torusGeometry: any;
-      meshStandardMaterial: any;
-      ambientLight: any;
-      pointLight: any;
-    }
-  }
-}
-
 import * as React from 'react'
 import * as THREE from 'three'
 import { Canvas, useFrame } from '@react-three/fiber'
