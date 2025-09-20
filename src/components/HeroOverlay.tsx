@@ -25,7 +25,7 @@ export default function HeroOverlay() {
   });
 
   return (
-    <div style={wrap} aria-live="polite">
+    <div style={wrap}>
       <h1 style={h1}>AI-платформа для осознанных покупок</h1>
       <p style={sub}>Взвешанные решения: AI-консультант, новости, интеграция оплаты.</p>
 
