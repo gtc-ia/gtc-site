@@ -30,13 +30,28 @@ export default function HeroOverlay() {
       <p style={sub}>Взвешанные решения: AI-консультант, новости, интеграция оплаты.</p>
 
       <div style={row}>
-        <a href="https://t.me/Procurement_AnalystBot" target="_blank" rel="noreferrer" style={btn('#67e8f9')}>
+        <a
+          href="https://t.me/Procurement_AnalystBot"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={btn('#67e8f9')}
+        >
           Открыть бота
         </a>
-        <a href="https://app.gtstor.com/news/" target="_blank" rel="noreferrer" style={btn('rgba(255,255,255,0.12)', '#fff')}>
+        <a
+          href="https://app.gtstor.com/news/"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={btn('rgba(255,255,255,0.12)', '#fff')}
+        >
           Читать новости
         </a>
-        <a href="https://pay.gtstor.com/payment.php" target="_blank" rel="noreferrer" style={btn('#34d399')}>
+        <a
+          href="https://pay.gtstor.com/payment.php"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={btn('#34d399')}
+        >
           Оформить доступ
         </a>
       </div>
