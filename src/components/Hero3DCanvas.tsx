@@ -1,3 +1,4 @@
+// @ts-nocheck
 /* Локальная декларация IntrinsicElements — чтобы Vercel TS не падал на R3F-тегах */
 declare global {
   namespace JSX {
