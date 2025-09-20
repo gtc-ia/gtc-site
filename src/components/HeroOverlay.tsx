@@ -26,8 +26,10 @@ export default function HeroOverlay() {
 
   return (
     <div style={wrap} aria-live="polite">
-      <h1 style={h1}>AI-платформа для осознанных покупок</h1>
-      <p style={sub}>Взвешанные решения: AI-консультант, новости, интеграция оплаты.</p>
+      <h1 style={h1}>AI platform for smarter purchasing decisions</h1>
+      <p style={sub}>
+        Make informed choices with our AI advisor, curated news, and seamless payment integration.
+      </p>
 
       <div style={row}>
         <a
@@ -36,7 +38,7 @@ export default function HeroOverlay() {
           rel="noopener noreferrer"
           style={btn('#67e8f9')}
         >
-          Открыть бота
+          Launch AI assistant
         </a>
         <a
           href="https://app.gtstor.com/news/"
@@ -44,7 +46,7 @@ export default function HeroOverlay() {
           rel="noopener noreferrer"
           style={btn('rgba(255,255,255,0.12)', '#fff')}
         >
-          Читать новости
+          Read the news
         </a>
         <a
           href="https://pay.gtstor.com/payment.php"
@@ -52,7 +54,7 @@ export default function HeroOverlay() {
           rel="noopener noreferrer"
           style={btn('#34d399')}
         >
-          Оформить доступ
+          Get access
         </a>
       </div>
     </div>
