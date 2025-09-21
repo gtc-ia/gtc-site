@@ -1,54 +1,41 @@
 # GTC Site
 
-## Overview
-GTC Site is a streamlined Next.js landing page for the GTStor AI procurement platform. The homepage blends a performant hero overlay with an animated Three.js scene to showcase the product while keeping the rest of the layout minimal and ready for expansion.
+## Purpose
+GTC Site is the marketing home for GTStor, giving procurement teams a fast introduction to the AI-powered sourcing platform. The landing page mixes narrative copy, calls to action, and an animated hero experience so visitors can launch the Telegram assistant, read procurement news, or purchase access in just a few clicks.
 
-## Features
-- Hero overlay with actionable CTAs for launching the AI assistant, reading curated news, and purchasing access.
-- Animated 3D hero background rendered with React Three Fiber and Three.js primitives.
-- Minimal global styling powered by Tailwind CSS directives and the Inter font family.
-- SEO-ready static assets such as robots.txt and sitemap.xml shipped by default.
+## Primary Features
+- **Actionable hero overlay** with clear CTAs that link directly to the Telegram analyst bot, curated news portal, and payments page.
+- **Immersive WebGL background** composed with React Three Fiber and Three.js primitives for a dynamic first impression.
+- **Performance-oriented layout** that keeps supporting sections lightweight and ready for future content expansion.
+- **SEO-friendly static assets** including sitemap and robots directives shipped in the public folder.
 
-## Tech Stack
-- [Next.js 14](https://nextjs.org/) with React 18
-- TypeScript for type safety
-- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction) and [Three.js](https://threejs.org/) for WebGL rendering
-- Tailwind CSS and PostCSS for utility-first styling
+## Technology Stack
+- [Next.js 14](https://nextjs.org/) with React 18 for the application framework.
+- TypeScript for type-safe component development.
+- [React Three Fiber](https://docs.pmnd.rs/react-three-fiber/getting-started/introduction) and [Three.js](https://threejs.org/) to render the 3D hero scene.
+- Tailwind CSS and PostCSS for utility-first styling.
 
-## Getting Started
+## Local Development Setup
 1. Install dependencies:
    ```bash
    npm install
    ```
-2. Run the development server:
+2. Start the local development server:
    ```bash
    npm run dev
    ```
-   Visit `http://localhost:3000` to view the site.
-3. Create a production build:
+   Then open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## Production Build & Preview
+1. Create an optimized production build:
    ```bash
    npm run build
    ```
-4. Start the production server locally:
+2. Launch the production server locally:
    ```bash
    npm run start
    ```
+   The server will default to [http://localhost:3000](http://localhost:3000).
 
-## Структура проекта
-- `src/pages/_app.tsx` — точка входа Next.js, подключает глобальные стили и оборачивает страницы приложением.
-- `src/pages/index.tsx` — главная страница с ленивой загрузкой 3D-сцены и размещением оверлея героя.
-- `src/components/HeroOverlay.tsx` — компонент с заголовками, описанием и кнопками призывов к действию.
-- `src/components/Hero3DCanvas.tsx` — сцена React Three Fiber с анимированными геометриями и освещением.
-- `src/styles/globals.css` — глобальные стили, подключающие слои Tailwind и базовые шрифты.
-- `tsconfig.json` — конфигурация TypeScript, определяющая алиасы и параметры компилятора.
-- `tailwind.config.js` — настройка Tailwind CSS, где управляются темы, пресеты и пути сканирования классов.
-- `public/` — статические ресурсы (например, `fallback-hero.png`, `robots.txt`, `sitemap.xml`) для SEO и резервных изображений.
-
-## Настройка и обслуживание
-- **Тексты и CTA в герое** редактируются в `src/components/HeroOverlay.tsx`. Обновите заголовок, описание и ссылки, чтобы отражать актуальные продукты или кампании.
-- **3D-сцена** конфигурируется в `src/components/Hero3DCanvas.tsx`. Там можно менять используемые геометрии, цвета материалов, интенсивность света и скорость анимаций.
-- **Секции ниже героя** дополняются напрямую в `src/pages/index.tsx`. Добавьте новые блоки JSX под секцией `<section>` для расширения лендинга.
-- **Темизация и базовые стили** управляются через Tailwind: обновляйте токены в `tailwind.config.js`, а глобальные правила и импорты — в `src/styles/globals.css`.
-- **Типы и алиасы** поддерживаются в `tsconfig.json`, что упрощает рефакторинг и внедрение новых директорий.
-- **SEO и статические файлы** следите за актуальностью ресурсов в `public/` (например, обновляйте `robots.txt`, `sitemap.xml`, а также изображения, используемые как резервные).
-
+## Deployment
+The live marketing site is deployed at [https://gtstor.com/](https://gtstor.com/).
