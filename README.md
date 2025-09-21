@@ -34,6 +34,9 @@ GTC Site is a streamlined Next.js landing page for the GTStor AI procurement pla
    npm run start
    ```
 
+## Deployment
+Follow the production build steps above and deploy the generated output on your hosting provider of choice. Run `npm run build` to compile the app and `npm run start` to serve the production server in your target environment.
+
 ## Структура проекта
 - `src/pages/_app.tsx` — точка входа Next.js, подключает глобальные стили и оборачивает страницы приложением.
 - `src/pages/index.tsx` — главная страница с ленивой загрузкой 3D-сцены и размещением оверлея героя.
