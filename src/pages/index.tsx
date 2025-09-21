@@ -1,3 +1,4 @@
+import Head from 'next/head'
 import dynamic from 'next/dynamic'
 import HeroOverlay from '@/components/HeroOverlay'
 
@@ -17,7 +18,32 @@ const Hero3DCanvas = dynamic(() => import('@/components/Hero3DCanvas'), {
 
 export default function Home() {
   return (
-    <main style={{ minHeight: '100vh', background: '#0b1220', color: '#fff' }}>
+    <>
+      <Head>
+        <title>GTC — AI advisor with real-time news and payments</title>
+        <meta
+          name="description"
+          content="Guide purchasing decisions with the GTC AI advisor, monitor curated market news, and unlock paid tools through seamless payments."
+        />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://gtstor.com/" />
+        <meta property="og:title" content="GTC — AI advisor with real-time news and payments" />
+        <meta
+          property="og:description"
+          content="Guide purchasing decisions with the GTC AI advisor, monitor curated market news, and unlock paid tools through seamless payments."
+        />
+        <meta property="og:image" content="https://gtstor.com/fallback-hero.png" />
+        <meta property="og:site_name" content="GTC" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="GTC — AI advisor with real-time news and payments" />
+        <meta
+          name="twitter:description"
+          content="Guide purchasing decisions with the GTC AI advisor, monitor curated market news, and unlock paid tools through seamless payments."
+        />
+        <meta name="twitter:image" content="https://gtstor.com/fallback-hero.png" />
+        <meta name="twitter:url" content="https://gtstor.com/" />
+      </Head>
+      <main style={{ minHeight: '100vh', background: '#0b1220', color: '#fff' }}>
       <section
         style={{
           position: 'relative',
@@ -48,6 +74,7 @@ export default function Home() {
       </section>
 
       {/* Ниже можете разместить статический контент секций */}
-    </main>
+      </main>
+    </>
   )
 }
