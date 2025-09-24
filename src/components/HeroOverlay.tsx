@@ -1,42 +1,22 @@
-import React from 'react';
+const buttonBase =
+  'inline-block rounded-xl px-[18px] py-3 font-semibold transition duration-200 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2'
 
 export default function HeroOverlay() {
-  const wrap: React.CSSProperties = {
-    position: 'relative',
-    zIndex: 10,
-    maxWidth: 960,
-    margin: '0 auto',
-    padding: '64px 24px',
-    textAlign: 'center',
-    color: '#fff',
-  };
-  const h1: React.CSSProperties = { fontSize: '40px', lineHeight: 1.1, fontWeight: 600, margin: 0 };
-  const sub: React.CSSProperties = { marginTop: 16, fontSize: 18, color: 'rgba(255,255,255,0.8)' };
-  const row: React.CSSProperties = { marginTop: 28, display: 'flex', gap: 12, justifyContent: 'center', flexWrap: 'wrap' };
-  const btn = (bg: string, color = '#0b1220'): React.CSSProperties => ({
-    display: 'inline-block',
-    padding: '12px 18px',
-    borderRadius: 12,
-    background: bg,
-    color,
-    fontWeight: 600,
-    textDecoration: 'none',
-    transition: 'filter 0.2s ease',
-  });
-
   return (
-    <div style={wrap}>
-      <h1 style={h1}>AI platform for smarter purchasing decisions</h1>
-      <p style={sub}>
+    <div className="relative z-10 mx-auto max-w-[960px] px-6 py-16 text-center text-white md:px-8">
+      <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
+        AI platform for smarter purchasing decisions
+      </h1>
+      <p className="mt-4 text-lg text-white/80">
         Make informed choices with our AI advisor, curated news, and seamless payment integration.
       </p>
 
-      <div style={row}>
+      <div className="mt-7 flex flex-wrap justify-center gap-3">
         <a
           href="https://t.me/Procurement_AnalystBot"
           target="_blank"
           rel="noopener noreferrer"
-          style={btn('#67e8f9')}
+          className={`${buttonBase} bg-cyan-300 text-[#0b1220] hover:brightness-110 focus-visible:outline-cyan-200`}
         >
           Launch AI assistant
         </a>
@@ -44,7 +24,7 @@ export default function HeroOverlay() {
           href="https://app.gtstor.com/news/"
           target="_blank"
           rel="noopener noreferrer"
-          style={btn('rgba(255,255,255,0.12)', '#fff')}
+          className={`${buttonBase} bg-white/15 text-white hover:bg-white/25 focus-visible:outline-white/40`}
         >
           Read the news
         </a>
@@ -52,11 +32,11 @@ export default function HeroOverlay() {
           href="https://pay.gtstor.com/payment.php"
           target="_blank"
           rel="noopener noreferrer"
-          style={btn('#34d399')}
+          className={`${buttonBase} bg-emerald-400 text-[#0b1220] hover:brightness-110 focus-visible:outline-emerald-200`}
         >
           Get access
         </a>
       </div>
     </div>
-  );
+  )
 }
