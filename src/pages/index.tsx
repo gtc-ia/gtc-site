@@ -6,13 +6,7 @@ import HeroOverlay from '@/components/HeroOverlay'
 const Hero3DCanvas = dynamic(() => import('@/components/Hero3DCanvas'), {
   ssr: false,
   loading: () => (
-    <div
-      style={{
-        position: 'absolute',
-        inset: 0,
-        background: 'linear-gradient(180deg, #0b1220 0%, #0e1a33 100%)',
-      }}
-    />
+    <div className="absolute inset-0 bg-[linear-gradient(180deg,#0b1220_0%,#0e1a33_100%)]" />
   ),
 })
 
@@ -41,16 +35,10 @@ export default function Home() {
         />
         <meta name="twitter:image" content="/fallback-hero.png" />
       </Head>
-      <main style={{ minHeight: '100vh', background: '#0b1220', color: '#fff' }}>
-        <section
-          style={{
-            position: 'relative',
-            overflow: 'hidden',
-            minHeight: '520px',
-          }}
-        >
+      <main className="min-h-screen bg-[#0b1220] text-white">
+        <section className="relative min-h-[520px] overflow-hidden">
           {/* 3D-канвас под текстом */}
-          <div style={{ position: 'absolute', inset: 0 }}>
+          <div className="absolute inset-0">
             <Hero3DCanvas />
           </div>
 
@@ -58,17 +46,7 @@ export default function Home() {
           <HeroOverlay />
 
           {/* Мягкая подложка снизу для читаемости */}
-          <div
-            style={{
-              pointerEvents: 'none',
-              position: 'absolute',
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: '160px',
-              background: 'linear-gradient(0deg, #0b1220, rgba(11,18,32,0))',
-            }}
-          />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(0deg,#0b1220,rgba(11,18,32,0))]" />
         </section>
 
         {/* Ниже можете разместить статический контент секций */}
