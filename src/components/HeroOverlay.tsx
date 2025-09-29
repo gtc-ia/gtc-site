@@ -8,10 +8,6 @@ export default function HeroOverlay() {
         Smarter buys, happier life
       </h1>
       <p className="mt-2 text-lg text-white/80">Thanks to AI</p>
-      <p className="mt-4 text-lg text-white/80">
-        Make informed choices with our AI advisor, curated news, and seamless payment integration.
-      </p>
-
       <div className="mt-7 flex flex-wrap justify-center gap-3">
         <a
           href="https://t.me/Procurement_AnalystBot"
