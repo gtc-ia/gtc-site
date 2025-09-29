@@ -5,8 +5,9 @@ export default function HeroOverlay() {
   return (
     <div className="relative z-10 mx-auto max-w-[960px] px-6 py-16 text-center text-white md:px-8">
       <h1 className="text-4xl font-semibold leading-tight tracking-tight text-white md:text-5xl">
-        AI platform for smarter purchasing decisions
+        Smarter buys, happier life
       </h1>
+      <p className="mt-2 text-lg text-white/80">Thanks to AI</p>
       <p className="mt-4 text-lg text-white/80">
         Make informed choices with our AI advisor, curated news, and seamless payment integration.
       </p>
