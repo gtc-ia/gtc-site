@@ -34,6 +34,17 @@ export default function HeroOverlay() {
           Get access
         </a>
       </div>
+      <div className="mt-10 flex flex-col items-center gap-4">
+        <span aria-hidden="true" className="h-16 w-px bg-white/20" />
+        <a
+          href="https://www.gtchain.io/"
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`${buttonBase} bg-[#0A1F44] text-white hover:shadow-[0_0_18px_rgba(10,31,68,0.55)]`}
+        >
+          Visit GTChain
+        </a>
+      </div>
     </div>
   )
 }
