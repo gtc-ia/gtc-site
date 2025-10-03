@@ -26,7 +26,7 @@ export default function HeroOverlay() {
           Read the news
         </a>
         <a
-          href="https://pay.gtstor.com/payment.php"
+          href="https://app.gtstor.com/auth/"
           target="_blank"
           rel="noopener noreferrer"
           className={`${buttonBase} bg-emerald-400 text-[#0b1220] hover:brightness-110 focus-visible:outline-emerald-200`}
