@@ -36,6 +36,16 @@ export default function Home() {
         <meta name="twitter:image" content="/fallback-hero.png" />
       </Head>
       <main className="min-h-screen bg-[#0b1220] text-white">
+        <div className="flex justify-end px-6 py-4 md:px-8">
+          <a
+            href="https://billing.stripe.com/p/login/9B6cN60BK1xN5A4cs0dwc00"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-semibold text-white transition hover:text-white/80"
+          >
+            Customer Portal
+          </a>
+        </div>
         <section className="relative min-h-[520px] overflow-hidden">
           {/* 3D-канвас под текстом */}
           <div className="absolute inset-0">
