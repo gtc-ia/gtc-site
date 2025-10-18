@@ -1,0 +1,10 @@
+{
+  "subscriptions": [
+    {
+      "userId": "3001",
+      "active": true,
+      "planName": "default",
+      "expiresAt": "2099-12-31T23:59:59Z"
+    }
+  ]
+}
