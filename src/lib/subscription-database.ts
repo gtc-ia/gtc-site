@@ -159,32 +159,34 @@ const parseDatabaseContents = (contents: string): SubscriptionDatabaseRecord[] =
     return [];
   }
 
-  return records
-    .map((record) => {
-      const userIdCandidate = record.userId ?? record.gtcUserId ?? "";
-      const userId = String(userIdCandidate ?? "").trim();
+  const normalized: SubscriptionDatabaseRecord[] = [];
 
-      if (!userId) {
-        return null;
-      }
+  for (const record of records) {
+    const userIdCandidate = record.userId ?? record.gtcUserId ?? "";
+    const userId = String(userIdCandidate ?? "").trim();
 
-      const gtcIdRaw = record.gtcUserId;
-      const gtcUserId = gtcIdRaw === undefined || gtcIdRaw === null ? null : String(gtcIdRaw).trim() || null;
+    if (!userId) {
+      continue;
+    }
 
-      const expiresAt = computeExpiresAt(record);
-      const planName = computePlanName(record);
-      const status = computeStatus(record);
+    const gtcIdRaw = record.gtcUserId;
+    const gtcUserId = gtcIdRaw === undefined || gtcIdRaw === null ? null : String(gtcIdRaw).trim() || null;
 
-      return {
-        userId,
-        gtcUserId,
-        status,
-        active: computeActiveFlag(record),
-        planName,
-        expiresAt,
-      } satisfies SubscriptionDatabaseRecord;
-    })
-    .filter((record): record is SubscriptionDatabaseRecord => Boolean(record));
+    const expiresAt = computeExpiresAt(record);
+    const planName = computePlanName(record);
+    const status = computeStatus(record);
+
+    normalized.push({
+      userId,
+      gtcUserId,
+      status,
+      active: computeActiveFlag(record),
+      planName,
+      expiresAt,
+    });
+  }
+
+  return normalized;
 };
 
 const readDatabaseRecords = async (filePath: string): Promise<SubscriptionDatabaseCache> => {

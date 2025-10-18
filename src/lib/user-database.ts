@@ -88,28 +88,30 @@ const parseDatabaseContents = (contents: string): UserDatabaseRecord[] => {
     return [];
   }
 
-  return records
-    .map((record) => {
-      const idCandidate = record.userId ?? record.gtcUserId ?? "";
-      const userId = String(idCandidate ?? "").trim();
+  const normalized: UserDatabaseRecord[] = [];
 
-      if (!userId) {
-        return null;
-      }
+  for (const record of records) {
+    const idCandidate = record.userId ?? record.gtcUserId ?? "";
+    const userId = String(idCandidate ?? "").trim();
 
-      const gtcRaw = record.gtcUserId;
-      const gtcUserId = gtcRaw === undefined || gtcRaw === null ? null : String(gtcRaw).trim() || null;
-      const providers = parseUserProviders(record.providers);
-      const chatAccess = normalizeBoolean(record.chatAccess ?? record.chat_access ?? null);
+    if (!userId) {
+      continue;
+    }
 
-      return {
-        userId,
-        gtcUserId,
-        providers,
-        chatAccess: chatAccess ?? undefined,
-      } satisfies UserDatabaseRecord;
-    })
-    .filter((record): record is UserDatabaseRecord => Boolean(record));
+    const gtcRaw = record.gtcUserId;
+    const gtcUserId = gtcRaw === undefined || gtcRaw === null ? null : String(gtcRaw).trim() || null;
+    const providers = parseUserProviders(record.providers);
+    const chatAccess = normalizeBoolean(record.chatAccess ?? record.chat_access ?? null);
+
+    normalized.push({
+      userId,
+      gtcUserId,
+      providers,
+      chatAccess: chatAccess ?? undefined,
+    });
+  }
+
+  return normalized;
 };
 
 const readUserRecords = async (filePath: string): Promise<UserDatabaseCache> => {
