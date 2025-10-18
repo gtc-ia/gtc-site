@@ -18,39 +18,6 @@ const getChatUrl = () => process.env.CHAT_URL ?? process.env.NEXT_PUBLIC_CHAT_UR
 const getPaymentBaseUrl = () => process.env.PAYMENT_URL ?? process.env.NEXT_PUBLIC_PAYMENT_URL ?? DEFAULT_PAYMENT_URL;
 const getSupportEmail = () => process.env.SUPPORT_EMAIL ?? process.env.NEXT_PUBLIC_SUPPORT_EMAIL ?? DEFAULT_SUPPORT_EMAIL;
 
-const USER_ID_KEYS = [
-  "user_id",
-  "userId",
-  "id",
-  "user",
-  "uid",
-  "account_id",
-  "accountId",
-];
-
-const pickFirstIdentifier = (source: Record<string, unknown> | undefined): string | undefined => {
-  if (!source) {
-    return undefined;
-  }
-
-  for (const key of USER_ID_KEYS) {
-    const value = source[key];
-
-    if (typeof value === "string") {
-      return value;
-    }
-
-    if (Array.isArray(value) && value.length > 0) {
-      const first = value.find((entry): entry is string => typeof entry === "string");
-      if (first) {
-        return first;
-      }
-    }
-  }
-
-  return undefined;
-};
-
 const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, chatUrl, paymentUrl }) => {
   const supportHref = useMemo(() => `mailto:${supportEmail}`, [supportEmail]);
 
@@ -96,9 +63,8 @@ const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, ch
 };
 
 export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async ({ query, req }) => {
-  const rawUserIdFromQuery = pickFirstIdentifier(query as Record<string, unknown> | undefined);
-  const rawUserIdFromCookies = pickFirstIdentifier(req.cookies as Record<string, unknown> | undefined);
-  const userId = rawUserIdFromQuery ?? rawUserIdFromCookies;
+  const rawUserId = query.user_id ?? query.userId ?? req.cookies?.user_id ?? req.cookies?.userId;
+  const userId = Array.isArray(rawUserId) ? rawUserId[0] : rawUserId;
 
   const chatUrl = getChatUrl();
   const paymentBaseUrl = getPaymentBaseUrl();

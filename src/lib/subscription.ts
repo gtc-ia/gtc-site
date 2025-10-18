@@ -13,16 +13,6 @@ const STATIC_SUBSCRIPTIONS: Record<string, SubscriptionStatus> = {
   },
 };
 
-const getStaticSubscription = (userId: string): SubscriptionStatus | undefined => {
-  const status = STATIC_SUBSCRIPTIONS[userId];
-
-  if (!status) {
-    return undefined;
-  }
-
-  return { ...status };
-};
-
 const normalizeBoolean = (value: unknown): boolean | undefined => {
   if (typeof value === "boolean") {
     return value;
@@ -119,11 +109,6 @@ export const fetchSubscriptionStatus = async (userId: string): Promise<Subscript
     return { ...override };
   }
 
-  const staticStatus = getStaticSubscription(trimmedUserId);
-  if (staticStatus) {
-    return staticStatus;
-  }
-
   const endpointUrl = parseEndpoint(trimmedUserId);
 
   if (endpointUrl) {
@@ -150,6 +135,10 @@ export const fetchSubscriptionStatus = async (userId: string): Promise<Subscript
     }
 
     throw new Error("Subscription API response did not contain a recognizable active flag");
+  }
+
+  if (STATIC_SUBSCRIPTIONS[trimmedUserId]) {
+    return { ...STATIC_SUBSCRIPTIONS[trimmedUserId] };
   }
 
   return {
