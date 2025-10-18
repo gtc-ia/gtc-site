@@ -1,0 +1,16 @@
+{
+  "subscriptions": [
+    {
+      "userId": "fixture-user",
+      "active": true,
+      "planName": "pro",
+      "expiresAt": "2099-01-01T00:00:00Z"
+    },
+    {
+      "userId": "inactive-user",
+      "active": false,
+      "planName": "trial",
+      "expiresAt": null
+    }
+  ]
+}
