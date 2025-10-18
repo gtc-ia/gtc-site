@@ -14,12 +14,6 @@ type RawUserRecord = {
   providers?: unknown;
   chatAccess?: boolean | number | string | null;
   chat_access?: boolean | number | string | null;
-  telegramBotAccess?: boolean | number | string | null;
-  telegram_bot_access?: boolean | number | string | null;
-  hasChatAccess?: boolean | number | string | null;
-  has_chat_access?: boolean | number | string | null;
-  directAccess?: boolean | number | string | null;
-  direct_access?: boolean | number | string | null;
 };
 
 type UserDatabaseShape =
@@ -86,28 +80,6 @@ const parseUserProviders = (value: unknown): string[] => {
   return [];
 };
 
-const extractAccessFlag = (record: RawUserRecord): boolean | undefined => {
-  const candidates: (boolean | number | string | null | undefined)[] = [
-    record.chatAccess,
-    record.chat_access,
-    record.telegramBotAccess,
-    record.telegram_bot_access,
-    record.hasChatAccess,
-    record.has_chat_access,
-    record.directAccess,
-    record.direct_access,
-  ];
-
-  for (const candidate of candidates) {
-    const normalized = normalizeBoolean(candidate ?? null);
-    if (normalized !== undefined) {
-      return normalized;
-    }
-  }
-
-  return undefined;
-};
-
 const parseDatabaseContents = (contents: string): UserDatabaseRecord[] => {
   const parsed = JSON.parse(contents) as UserDatabaseShape;
   const records = Array.isArray(parsed) ? parsed : parsed.users;
@@ -129,7 +101,7 @@ const parseDatabaseContents = (contents: string): UserDatabaseRecord[] => {
     const gtcRaw = record.gtcUserId;
     const gtcUserId = gtcRaw === undefined || gtcRaw === null ? null : String(gtcRaw).trim() || null;
     const providers = parseUserProviders(record.providers);
-    const chatAccess = extractAccessFlag(record);
+    const chatAccess = normalizeBoolean(record.chatAccess ?? record.chat_access ?? null);
 
     normalized.push({
       userId,
