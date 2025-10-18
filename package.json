@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
-    "start": "next start"
+    "start": "next start",
+    "test": "tsx --test tests/subscription.test.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.122.0",
@@ -23,6 +24,7 @@
     "autoprefixer": "^10.4.14",
     "postcss": "^8.4.23",
     "tailwindcss": "^3.3.2",
+    "tsx": "^4.20.6",
     "typescript": "^5.2.0"
   }
 }
