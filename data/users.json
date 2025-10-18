@@ -1,0 +1,10 @@
+{
+  "users": [
+    {
+      "userId": "3001",
+      "gtcUserId": 3001,
+      "providers": ["email", "google"],
+      "chatAccess": false
+    }
+  ]
+}
