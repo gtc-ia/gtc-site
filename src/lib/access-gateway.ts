@@ -41,29 +41,6 @@ const determineReason = (
   return "user_not_found";
 };
 
-const resolveSubscriptionRecord = async (
-  lookupId: string,
-  userRecord: UserDatabaseRecord | undefined
-): Promise<SubscriptionDatabaseRecord | undefined> => {
-  const directMatch = await getSubscriptionFromDatabase(lookupId);
-
-  if (directMatch) {
-    return directMatch;
-  }
-
-  const fallbackGtcId = userRecord?.gtcUserId?.trim();
-
-  if (fallbackGtcId && fallbackGtcId !== lookupId) {
-    const gtcMatch = await getSubscriptionFromDatabase(fallbackGtcId);
-
-    if (gtcMatch) {
-      return gtcMatch;
-    }
-  }
-
-  return undefined;
-};
-
 export const resolveAccessTicket = async (lookupId: string): Promise<AccessTicket> => {
   const trimmedLookupId = lookupId.trim();
 
@@ -79,7 +56,9 @@ export const resolveAccessTicket = async (lookupId: string): Promise<AccessTicke
 
   const userRecord = await getUserFromDatabase(trimmedLookupId);
 
-  const subscriptionRecord = await resolveSubscriptionRecord(trimmedLookupId, userRecord);
+  const subscriptionRecord = await getSubscriptionFromDatabase(trimmedLookupId, {
+    gtcUserId: userRecord?.gtcUserId ?? null,
+  });
 
   const hasDirectAccess = Boolean(userRecord?.chatAccess);
   const hasSubscription = isSubscriptionActive(subscriptionRecord);
@@ -115,39 +94,9 @@ export type RedirectDecision =
     };
 
 const buildPaymentUrl = (baseUrl: string, userId: string) => {
-  const trimmedBase = baseUrl.trim();
-  const fallback = `https://pay.gtstor.com/payment.php?user_id=${encodeURIComponent(userId)}`;
-
-  if (!trimmedBase) {
-    return fallback;
-  }
-
-  const applyUserId = (url: URL) => {
-    url.searchParams.set("user_id", userId);
-    return url;
-  };
-
-  const isAbsolute = /^[a-zA-Z][a-zA-Z\d+\-.]*:/.test(trimmedBase);
-
-  try {
-    if (isAbsolute) {
-      return applyUserId(new URL(trimmedBase)).toString();
-    }
-
-    const url = applyUserId(new URL(trimmedBase, "https://placeholder.local"));
-    const pathname = url.pathname || "/";
-    const search = url.search ?? "";
-    const hash = url.hash ?? "";
-    return `${pathname}${search}${hash}`;
-  } catch {
-    const [withoutHash, hashFragment = ""] = trimmedBase.split("#", 2);
-    const [path, queryString = ""] = withoutHash.split("?", 2);
-    const params = new URLSearchParams(queryString);
-    params.set("user_id", userId);
-    const query = params.toString();
-    const hash = hashFragment ? `#${hashFragment}` : "";
-    return `${path}${query ? `?${query}` : ""}${hash}` || fallback;
-  }
+  const hasQuery = baseUrl.includes("?");
+  const separator = hasQuery ? "&" : "?";
+  return `${baseUrl}${separator}user_id=${encodeURIComponent(userId)}`;
 };
 
 export const resolveRedirectDecision = async (
