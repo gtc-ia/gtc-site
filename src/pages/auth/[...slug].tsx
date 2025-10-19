@@ -1,1 +1,1 @@
-export { default, getServerSideProps } from "./router";
+export { default, getServerSideProps } from "./index";

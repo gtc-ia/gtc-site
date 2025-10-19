@@ -4,8 +4,7 @@
       "userId": "fixture-user",
       "gtcUserId": 9001,
       "providers": ["email"],
-      "chatAccess": true,
-      "telegram_bot_access": true
+      "chatAccess": true
     },
     {
       "userId": "inactive-user",
