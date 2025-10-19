@@ -2,10 +2,9 @@
   "subscriptions": [
     {
       "userId": "3001",
-      "gtcUserId": 3001,
-      "status": "active",
+      "active": true,
       "planName": "default",
-      "endDate": "2099-12-31T23:59:59Z"
+      "expiresAt": "2099-12-31T23:59:59Z"
     }
   ]
 }
