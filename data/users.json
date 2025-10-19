@@ -4,8 +4,7 @@
       "userId": "3001",
       "gtcUserId": 3001,
       "providers": ["email", "google"],
-      "chatAccess": false,
-      "telegram_bot_access": true
+      "chatAccess": false
     }
   ]
 }

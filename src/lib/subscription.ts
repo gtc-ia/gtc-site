@@ -1,5 +1,3 @@
-import { resolveAccessTicket } from "./access-gateway";
-
 export interface SubscriptionStatus {
   active: boolean;
   expiresAt?: string | null;
@@ -13,16 +11,6 @@ const STATIC_SUBSCRIPTIONS: Record<string, SubscriptionStatus> = {
     expiresAt: "2099-12-31T23:59:59Z",
     planName: "default",
   },
-};
-
-const getStaticSubscription = (userId: string): SubscriptionStatus | undefined => {
-  const status = STATIC_SUBSCRIPTIONS[userId];
-
-  if (!status) {
-    return undefined;
-  }
-
-  return { ...status };
 };
 
 const normalizeBoolean = (value: unknown): boolean | undefined => {
@@ -121,22 +109,6 @@ export const fetchSubscriptionStatus = async (userId: string): Promise<Subscript
     return { ...override };
   }
 
-  const accessTicket = await resolveAccessTicket(trimmedUserId);
-
-  if (accessTicket.reason !== "user_not_found") {
-    return {
-      active: accessTicket.hasChatAccess,
-      planName: accessTicket.subscription?.planName ?? null,
-      expiresAt: accessTicket.subscription?.expiresAt ?? null,
-      raw: accessTicket,
-    } satisfies SubscriptionStatus;
-  }
-
-  const staticStatus = getStaticSubscription(trimmedUserId);
-  if (staticStatus) {
-    return staticStatus;
-  }
-
   const endpointUrl = parseEndpoint(trimmedUserId);
 
   if (endpointUrl) {
@@ -163,6 +135,10 @@ export const fetchSubscriptionStatus = async (userId: string): Promise<Subscript
     }
 
     throw new Error("Subscription API response did not contain a recognizable active flag");
+  }
+
+  if (STATIC_SUBSCRIPTIONS[trimmedUserId]) {
+    return { ...STATIC_SUBSCRIPTIONS[trimmedUserId] };
   }
 
   return {
