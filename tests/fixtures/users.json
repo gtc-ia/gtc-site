@@ -1,0 +1,23 @@
+{
+  "users": [
+    {
+      "userId": "fixture-user",
+      "gtcUserId": 9001,
+      "providers": ["email"],
+      "chatAccess": true,
+      "telegram_bot_access": true
+    },
+    {
+      "userId": "inactive-user",
+      "gtcUserId": 9000,
+      "providers": ["google"],
+      "chatAccess": false
+    },
+    {
+      "userId": "9002",
+      "gtcUserId": 9002,
+      "providers": ["google", "email"],
+      "chatAccess": false
+    }
+  ]
+}
