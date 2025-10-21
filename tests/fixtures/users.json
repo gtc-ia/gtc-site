@@ -17,6 +17,12 @@
       "gtcUserId": 9002,
       "providers": ["google", "email"],
       "chatAccess": false
+    },
+    {
+      "userId": "user3001@example.com",
+      "gtcUserId": 3001,
+      "providers": ["email"],
+      "chatAccess": false
     }
   ]
 }
