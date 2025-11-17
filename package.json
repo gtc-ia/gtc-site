@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "test": "tsx --test tests/subscription.test.ts"
+    "test": "tsx --test tests/access-gateway.test.ts tests/subscription.test.ts"
   },
   "dependencies": {
     "@react-three/drei": "^9.122.0",
