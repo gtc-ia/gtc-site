@@ -13,6 +13,23 @@ const STATIC_SUBSCRIPTIONS: Record<string, SubscriptionStatus> = {
   },
 };
 
+const normalizeStatusString = (value: string): boolean | undefined => {
+  switch (value) {
+    case "trial":
+    case "trialing":
+    case "active":
+      return true;
+    case "canceled":
+    case "cancelled":
+    case "unpaid":
+    case "incomplete":
+    case "incomplete_expired":
+      return false;
+    default:
+      return undefined;
+  }
+};
+
 const normalizeBoolean = (value: unknown): boolean | undefined => {
   if (typeof value === "boolean") {
     return value;
@@ -24,6 +41,12 @@ const normalizeBoolean = (value: unknown): boolean | undefined => {
 
   if (typeof value === "string") {
     const normalized = value.trim().toLowerCase();
+    const normalizedStatus = normalizeStatusString(normalized);
+
+    if (normalizedStatus !== undefined) {
+      return normalizedStatus;
+    }
+
     if (["1", "true", "yes", "active"].includes(normalized)) {
       return true;
     }
