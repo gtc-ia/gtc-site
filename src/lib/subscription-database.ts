@@ -78,12 +78,46 @@ const readDatabaseRecords = async (filePath: string): Promise<Map<string, Subscr
   }
 };
 
-export const getSubscriptionFromDatabase = async (
-  userId: string
-): Promise<SubscriptionDatabaseRecord | undefined> => {
-  const trimmedId = userId.trim();
+export type SubscriptionLookupOptions = {
+  gtcUserId?: string | null;
+  aliases?: Array<string | number | null | undefined>;
+};
 
-  if (!trimmedId) {
+const normalizeLookupCandidate = (value: string | number | null | undefined): string | null => {
+  if (value === null || value === undefined) {
+    return null;
+  }
+
+  const trimmed = String(value).trim();
+  return trimmed.length > 0 ? trimmed : null;
+};
+
+export const getSubscriptionFromDatabase = async (
+  userId: string,
+  options: SubscriptionLookupOptions = {}
+): Promise<SubscriptionDatabaseRecord | undefined> => {
+  const candidates: string[] = [];
+
+  const primaryId = normalizeLookupCandidate(userId);
+  if (primaryId) {
+    candidates.push(primaryId);
+  }
+
+  const gtcId = normalizeLookupCandidate(options.gtcUserId ?? null);
+  if (gtcId && !candidates.includes(gtcId)) {
+    candidates.push(gtcId);
+  }
+
+  if (options.aliases) {
+    for (const alias of options.aliases) {
+      const normalized = normalizeLookupCandidate(alias);
+      if (normalized && !candidates.includes(normalized)) {
+        candidates.push(normalized);
+      }
+    }
+  }
+
+  if (candidates.length === 0) {
     return undefined;
   }
 
@@ -91,7 +125,14 @@ export const getSubscriptionFromDatabase = async (
     const dbPath = resolveDatabasePath();
     const records = await readDatabaseRecords(dbPath);
 
-    return records.get(trimmedId);
+    for (const candidate of candidates) {
+      const match = records.get(candidate);
+      if (match) {
+        return match;
+      }
+    }
+
+    return undefined;
   } catch (error) {
     console.error("Failed to read subscription database", error);
     return undefined;
