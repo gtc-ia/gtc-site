@@ -1,7 +1,10 @@
 import assert from "node:assert/strict";
+import path from "node:path";
 import test from "node:test";
 
 import { fetchSubscriptionStatus, hasActiveSubscription } from "../src/lib/subscription";
+import { clearSubscriptionDatabaseCache } from "../src/lib/subscription-database";
+import { clearUserDatabaseCache } from "../src/lib/user-database";
 
 test("fetchSubscriptionStatus returns active status for known subscriber", async () => {
   const status = await fetchSubscriptionStatus("3001");
@@ -43,5 +46,28 @@ test("fetchSubscriptionStatus treats trialing status as active", async (t) => {
   } finally {
     process.env.SUBSCRIPTION_STATUS_ENDPOINT = previousEndpoint;
     global.fetch = originalFetch;
+  }
+});
+
+test("fetchSubscriptionStatus resolves subscription via linked user id", async () => {
+  const previousUserDb = process.env.USER_DB_PATH;
+  const previousSubDb = process.env.SUBSCRIPTION_DB_PATH;
+
+  process.env.USER_DB_PATH = path.join(process.cwd(), "tests", "fixtures", "users.json");
+  process.env.SUBSCRIPTION_DB_PATH = path.join(process.cwd(), "tests", "fixtures", "subscriptions.json");
+
+  clearUserDatabaseCache();
+  clearSubscriptionDatabaseCache();
+
+  try {
+    const status = await fetchSubscriptionStatus("user3001@example.com");
+
+    assert.equal(status.active, true);
+    assert.equal(status.planName, "default");
+  } finally {
+    process.env.USER_DB_PATH = previousUserDb;
+    process.env.SUBSCRIPTION_DB_PATH = previousSubDb;
+    clearUserDatabaseCache();
+    clearSubscriptionDatabaseCache();
   }
 });

@@ -1,3 +1,6 @@
+import { getSubscriptionFromDatabase } from "./subscription-database";
+import { getUserFromDatabase } from "./user-database";
+
 export interface SubscriptionStatus {
   active: boolean;
   expiresAt?: string | null;
@@ -84,17 +87,45 @@ const extractActiveFromPayload = (payload: Record<string, unknown>): boolean | u
 const parseEndpoint = (userId: string): URL | null => {
   const endpoint = process.env.SUBSCRIPTION_STATUS_ENDPOINT;
 
-  if (!endpoint) {
+  if (!endpoint || endpoint === "undefined") {
     return null;
   }
 
-  const url = new URL(endpoint);
+  try {
+    const url = new URL(endpoint);
 
-  if (!url.searchParams.has("user_id")) {
-    url.searchParams.set("user_id", userId);
+    if (!url.searchParams.has("user_id")) {
+      url.searchParams.set("user_id", userId);
+    }
+
+    return url;
+  } catch (error) {
+    console.warn("Ignoring invalid SUBSCRIPTION_STATUS_ENDPOINT", error);
+    return null;
+  }
+};
+
+const lookupSubscriptionFromDatabase = async (
+  userId: string
+): Promise<SubscriptionStatus | undefined> => {
+  const userRecord = await getUserFromDatabase(userId);
+
+  const subscriptionRecord = await getSubscriptionFromDatabase(userId, {
+    gtcUserId: userRecord?.gtcUserId ?? null,
+    aliases: userRecord
+      ? [userRecord.userId, userRecord.gtcUserId].filter(Boolean)
+      : undefined,
+  });
+
+  if (!subscriptionRecord) {
+    return undefined;
   }
 
-  return url;
+  return {
+    active: Boolean(subscriptionRecord.active),
+    planName: subscriptionRecord.planName ?? null,
+    expiresAt: subscriptionRecord.expiresAt ?? null,
+  };
 };
 
 const getEnvironmentOverride = (userId: string): SubscriptionStatus | undefined => {
@@ -158,6 +189,11 @@ export const fetchSubscriptionStatus = async (userId: string): Promise<Subscript
     }
 
     throw new Error("Subscription API response did not contain a recognizable active flag");
+  }
+
+  const databaseStatus = await lookupSubscriptionFromDatabase(trimmedUserId);
+  if (databaseStatus) {
+    return databaseStatus;
   }
 
   if (STATIC_SUBSCRIPTIONS[trimmedUserId]) {
