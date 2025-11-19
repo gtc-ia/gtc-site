@@ -293,7 +293,7 @@ const ServiceHubPage: NextPage<ServiceHubProps> = ({ error, supportEmail, chatUr
   );
 };
 
-const AuthRedirectPage: NextPage<ServiceHubProps> = (props) => <ServiceHubPage {...props} />;
+const ChatLandingPage: NextPage<ServiceHubProps> = (props) => <ServiceHubPage {...props} />;
 
 export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ query, req }) => {
   const rawUserIdFromQuery = pickFirstIdentifier(query as Record<string, unknown> | undefined);
@@ -316,25 +316,9 @@ export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ 
   }
 
   try {
-    const decision = await resolveRedirectDecision(userId, {
-      chatUrl,
-      paymentBaseUrl,
-    });
-
-    if (decision.type === "redirect") {
-      if (!decision.ticket.hasChatAccess) {
-        console.info("Routing user to services hub due to inactive subscription", JSON.stringify(decision.ticket));
-      }
-
-      return {
-        redirect: {
-          destination: decision.destination,
-          permanent: false,
-        },
-      };
-    }
-
-    console.warn("Unable to resolve access for user", JSON.stringify(decision.ticket));
+    const ticket = await resolveAccessTicket(userId);
+    const fallbackUserId = ticket.user?.userId ?? ticket.subscription?.userId ?? userId;
+    const paymentUrl = buildPaymentUrl(paymentBaseUrl, fallbackUserId);
 
     return {
       props: {
@@ -358,4 +342,4 @@ export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ 
   }
 };
 
-export default AuthRedirectPage;
+export default ChatLandingPage;
