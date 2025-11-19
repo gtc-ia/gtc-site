@@ -105,20 +105,9 @@ export const resolveRedirectDecision = async (
 ): Promise<RedirectDecision> => {
   const ticket = await resolveAccessTicket(lookupId);
 
-  if (ticket.hasChatAccess) {
-    return {
-      type: "redirect",
-      destination: options.chatUrl,
-      ticket,
-    };
-  }
-
-  const fallbackUserId = ticket.user?.userId ?? ticket.subscription?.userId ?? lookupId;
-  const target = buildPaymentUrl(options.paymentBaseUrl, fallbackUserId);
-
   return {
     type: "redirect",
-    destination: target,
+    destination: options.chatUrl,
     ticket,
   };
 };
