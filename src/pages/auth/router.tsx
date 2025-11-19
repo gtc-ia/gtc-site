@@ -2,7 +2,6 @@ import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
 
-import { resolveRedirectDecision } from "../../lib/access-gateway";
 
 type AuthRedirectProps = {
   error?: string;
@@ -144,6 +143,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   }
 
   try {
+    const { resolveRedirectDecision } = await import("@/lib/access-gateway");
     const decision = await resolveRedirectDecision(userId, {
       chatUrl,
       paymentBaseUrl,
@@ -151,10 +151,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     if (decision.type === "redirect") {
       if (!decision.ticket.hasChatAccess) {
-        console.info(
-          "Routing user to payment portal due to inactive subscription",
-          JSON.stringify(decision.ticket)
-        );
+        console.info("Routing user to services hub due to inactive subscription", JSON.stringify(decision.ticket));
       }
 
       return {
