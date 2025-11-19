@@ -112,16 +112,47 @@ const AuthRedirectScreen: NextPage<AuthRedirectProps> = ({
   const lookupLabel = ticket?.user?.userId ?? ticket?.lookupId;
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-slate-900 px-6 text-center text-slate-100">
+    <main className="min-h-screen bg-slate-950 py-12 px-4 text-slate-100">
       <Head>
-        <title>Checking your subscription… | GTStor</title>
+        <title>Ваши сервисы GTC | GTStor</title>
       </Head>
 
-      <div className="max-w-xl rounded-2xl bg-slate-800/80 p-8 shadow-xl">
-        <h1 className="text-3xl font-semibold">Checking your subscription…</h1>
-        <p className="mt-4 text-base text-slate-300">
-          You will be redirected shortly based on your subscription status.
-        </p>
+      <div className="mx-auto flex w-full max-w-5xl flex-col gap-8">
+        <header className="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-slate-900/60 p-8 shadow-xl shadow-slate-950/40">
+          <p className="text-sm uppercase tracking-widest text-slate-400">Центр сервисов GTC</p>
+          <h1 className="mt-4 text-3xl font-semibold text-white">Добро пожаловать{lookupLabel ? `, ${lookupLabel}` : ""}!</h1>
+          <p className="mt-3 text-base text-slate-300">
+            Здесь отображаются сервисы, доступные вашему аккаунту сразу после регистрации. Вы можете возвращаться к этой странице,
+            чтобы отслеживать подключение новых возможностей.
+          </p>
+
+          <div className="mt-6 flex flex-wrap gap-4 text-sm text-slate-300">
+            <div className="rounded-2xl border border-slate-800/80 bg-slate-900/40 px-4 py-3">
+              <p className="text-xs uppercase tracking-wider text-slate-500">Текущий статус</p>
+              <p className="mt-1 text-base font-semibold text-white">
+                {reasonCopy ? reasonCopy.title : "Ожидаем подтверждение"}
+              </p>
+            </div>
+            {ticket?.subscription?.planName ? (
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/40 px-4 py-3">
+                <p className="text-xs uppercase tracking-wider text-slate-500">План</p>
+                <p className="mt-1 text-base font-semibold text-white">{ticket.subscription.planName}</p>
+              </div>
+            ) : null}
+            {ticket?.subscription?.expiresAt ? (
+              <div className="rounded-2xl border border-slate-800/80 bg-slate-900/40 px-4 py-3">
+                <p className="text-xs uppercase tracking-wider text-slate-500">Доступ до</p>
+                <p className="mt-1 text-base font-semibold text-white">
+                  {new Date(ticket.subscription.expiresAt).toLocaleDateString()}
+                </p>
+              </div>
+            ) : null}
+          </div>
+
+          {reasonCopy ? (
+            <p className="mt-4 text-sm text-slate-400">{reasonCopy.description}</p>
+          ) : null}
+        </header>
 
         {error ? (
           <div className="mt-6 rounded-lg border border-red-400 bg-red-500/10 p-4 text-left">
@@ -152,25 +183,41 @@ const AuthRedirectScreen: NextPage<AuthRedirectProps> = ({
               <a href={supportHref} className="underline">
                 {supportEmail}
               </a>
-              .
+              , и мы поможем вручную активировать доступ.
             </p>
           </div>
-        ) : (
-          <div className="mt-6 space-y-3 text-left text-sm text-slate-300">
-            <p>
-              <strong>Chat:</strong> {chatUrl}
-            </p>
-            <p>
-              <strong>Payment:</strong> {paymentUrl}
-            </p>
+        ) : null}
+
+        <section className="space-y-5">
+          <h2 className="text-2xl font-semibold text-white">Сервисы и доступ</h2>
+          <p className="text-sm text-slate-400">
+            Перечень обновляется автоматически в зависимости от статуса вашей подписки. Как только появляется новый продукт, мы добавляем его сюда.
+          </p>
+
+          <div className="mt-4 space-y-4">
+            {services.map((service) => (
+              <ServiceCard key={service.key} service={service} />
+            ))}
           </div>
-        )}
+        </section>
+
+        <footer className="rounded-3xl border border-slate-800 bg-slate-900/40 p-6 text-sm text-slate-300">
+          <p>
+            Если у вас есть вопросы по доступу или вы ожидаете дополнительные сервисы, напишите команде поддержки: {" "}
+            <a href={supportHref} className="font-semibold text-white underline">
+              {supportEmail}
+            </a>
+            .
+          </p>
+        </footer>
       </div>
     </main>
   );
 };
 
-export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async ({ query, req }) => {
+const AuthRedirectPage: NextPage<ServiceHubProps> = (props) => <ServiceHubPage {...props} />;
+
+export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ query, req }) => {
   const rawUserIdFromQuery = pickFirstIdentifier(query as Record<string, unknown> | undefined);
   const rawUserIdFromCookies = pickFirstIdentifier(req.cookies as Record<string, unknown> | undefined);
   const userId = rawUserIdFromQuery ?? rawUserIdFromCookies;
@@ -182,7 +229,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   if (!userId) {
     return {
       props: {
-        error: "We could not determine your account. Please return to the login page and try again.",
+        error: "Мы не смогли определить ваш аккаунт. Вернитесь к форме входа и попробуйте ещё раз.",
         chatUrl,
         paymentUrl: paymentBaseUrl,
         supportEmail,
@@ -214,9 +261,8 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     return {
       props: {
-        error: decision.message,
         chatUrl,
-        paymentUrl: paymentBaseUrl,
+        paymentUrl,
         supportEmail,
         ticket: decision.ticket,
       },
@@ -226,7 +272,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     return {
       props: {
-        error: "We couldn't verify your subscription right now. Our team has been notified.",
+        error: "Не удалось проверить подписку. Попробуйте позже или напишите нам.",
         chatUrl,
         paymentUrl: paymentBaseUrl,
         supportEmail,
