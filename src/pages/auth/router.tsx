@@ -2,14 +2,10 @@ import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
 
-import { resolveRedirectDecision } from "../../lib/access-gateway";
+import { ACCESS_REASON_COPY, ServiceCard, buildServiceCards, type ServiceHubProps } from "@/features/service-hub";
 
-type AuthRedirectProps = {
-  error?: string;
-  supportEmail?: string;
-  chatUrl: string;
-  paymentUrl: string;
-};
+
+type AuthRedirectProps = ServiceHubProps;
 
 const DEFAULT_CHAT_URL = "https://app.gtstor.com/chat/";
 const DEFAULT_PAYMENT_URL = "https://pay.gtstor.com/payment.php";
@@ -79,8 +75,22 @@ const pickFirstIdentifier = (source: Record<string, unknown> | undefined): strin
   return undefined;
 };
 
-const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, chatUrl, paymentUrl }) => {
+const AuthRedirectScreen: NextPage<AuthRedirectProps> = ({
+  error,
+  supportEmail,
+  chatUrl,
+  paymentUrl,
+  ticket,
+}) => {
   const supportHref = useMemo(() => `mailto:${supportEmail}`, [supportEmail]);
+  const reasonCopy = ticket ? ACCESS_REASON_COPY[ticket.reason] : undefined;
+  const lookupLabel = ticket?.user?.userId ?? ticket?.lookupId;
+  const services = useMemo(() => buildServiceCards(ticket, chatUrl, paymentUrl, supportHref), [
+    ticket,
+    chatUrl,
+    paymentUrl,
+    supportHref,
+  ]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-900 px-6 text-center text-slate-100">
@@ -100,6 +110,24 @@ const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, ch
             <p className="mt-2 text-sm text-red-100">
               {error}
             </p>
+            {reasonCopy ? (
+              <dl className="mt-4 space-y-1 text-sm text-slate-100">
+                <div>
+                  <dt className="font-semibold text-white">Причина</dt>
+                  <dd>{reasonCopy.title}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-white">Подробности</dt>
+                  <dd>{reasonCopy.description}</dd>
+                </div>
+                {lookupLabel ? (
+                  <div>
+                    <dt className="font-semibold text-white">Учетная запись</dt>
+                    <dd>{lookupLabel}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            ) : null}
             <p className="mt-4 text-sm text-slate-200">
               Try refreshing the page or contact us at {" "}
               <a href={supportHref} className="underline">
@@ -109,14 +137,36 @@ const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, ch
             </p>
           </div>
         ) : (
-          <div className="mt-6 space-y-3 text-left text-sm text-slate-300">
-            <p>
-              <strong>Chat:</strong> {chatUrl}
-            </p>
-            <p>
-              <strong>Payment:</strong> {paymentUrl}
-            </p>
-          </div>
+          <>
+            <div className="mt-6 space-y-3 text-left text-sm text-slate-300">
+              <p>
+                <strong>Chat:</strong> {chatUrl}
+              </p>
+              <p>
+                <strong>Payment:</strong> {paymentUrl}
+              </p>
+            </div>
+            <section className="mt-8 space-y-3 text-left text-sm text-slate-300">
+              <h2 className="text-base font-semibold text-white">Сервисы, доступные вашему аккаунту</h2>
+              <p className="text-xs text-slate-400">
+                После авторизации мы открываем этот центр, чтобы вы могли увидеть продукты, включенные в подписку.
+              </p>
+              <div className="mt-4 space-y-4">
+                {services.map((service) => (
+                  <ServiceCard key={service.key} service={service} />
+                ))}
+              </div>
+            </section>
+            <footer className="mt-8 rounded-3xl border border-slate-800 bg-slate-900/40 p-6 text-left text-sm text-slate-300">
+              <p>
+                Если после авторизации вы все равно видите эту страницу, напишите нам на {" "}
+                <a href={supportHref} className="font-semibold text-white underline">
+                  {supportEmail}
+                </a>{" "}
+                и мы проверим доступ вручную.
+              </p>
+            </footer>
+          </>
         )}
       </div>
     </main>
@@ -144,6 +194,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   }
 
   try {
+    const { resolveRedirectDecision } = await import("@/lib/access-gateway");
     const decision = await resolveRedirectDecision(userId, {
       chatUrl,
       paymentBaseUrl,
@@ -151,10 +202,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     if (decision.type === "redirect") {
       if (!decision.ticket.hasChatAccess) {
-        console.info(
-          "Routing user to payment portal due to inactive subscription",
-          JSON.stringify(decision.ticket)
-        );
+        console.info("Routing user to services hub due to inactive subscription", JSON.stringify(decision.ticket));
       }
 
       return {
@@ -173,6 +221,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
         chatUrl,
         paymentUrl: paymentBaseUrl,
         supportEmail,
+        ticket: decision.ticket,
       },
     };
   } catch (error) {
@@ -189,4 +238,4 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   }
 };
 
-export default AuthRedirectPage;
+export default AuthRedirectScreen;
