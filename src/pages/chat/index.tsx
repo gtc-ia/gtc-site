@@ -1,9 +1,7 @@
 import type { GetServerSideProps, NextPage } from "next";
 
+import { buildPaymentUrl, resolveAccessTicket } from "../../lib/access-gateway";
 import { ServiceHubPage, type ServiceHubProps } from "@/features/service-hub";
-
-
-type AuthRedirectProps = ServiceHubProps;
 
 const DEFAULT_CHAT_URL = "https://app.gtstor.com/chat/";
 const DEFAULT_PAYMENT_URL = "https://pay.gtstor.com/payment.php";
@@ -73,9 +71,9 @@ const pickFirstIdentifier = (source: Record<string, unknown> | undefined): strin
   return undefined;
 };
 
-const AuthRedirectScreen: NextPage<AuthRedirectProps> = (props) => <ServiceHubPage {...props} />;
+const ChatLandingPage: NextPage<ServiceHubProps> = (props) => <ServiceHubPage {...props} />;
 
-export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async ({ query, req }) => {
+export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ query, req }) => {
   const rawUserIdFromQuery = pickFirstIdentifier(query as Record<string, unknown> | undefined);
   const rawUserIdFromCookies = pickFirstIdentifier(req.cookies as Record<string, unknown> | undefined);
   const userId = rawUserIdFromQuery ?? rawUserIdFromCookies;
@@ -87,7 +85,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   if (!userId) {
     return {
       props: {
-        error: "We could not determine your account. Please return to the login page and try again.",
+        error: "Мы не смогли определить ваш аккаунт. Вернитесь к форме входа и попробуйте ещё раз.",
         chatUrl,
         paymentUrl: paymentBaseUrl,
         supportEmail,
@@ -96,34 +94,16 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   }
 
   try {
-    const { resolveRedirectDecision } = await import("@/lib/access-gateway");
-    const decision = await resolveRedirectDecision(userId, {
-      chatUrl,
-      paymentBaseUrl,
-    });
-
-    if (decision.type === "redirect") {
-      if (!decision.ticket.hasChatAccess) {
-        console.info("Routing user to services hub due to inactive subscription", JSON.stringify(decision.ticket));
-      }
-
-      return {
-        redirect: {
-          destination: decision.destination,
-          permanent: false,
-        },
-      };
-    }
-
-    console.warn("Unable to resolve access for user", JSON.stringify(decision.ticket));
+    const ticket = await resolveAccessTicket(userId);
+    const fallbackUserId = ticket.user?.userId ?? ticket.subscription?.userId ?? userId;
+    const paymentUrl = buildPaymentUrl(paymentBaseUrl, fallbackUserId);
 
     return {
       props: {
-        error: decision.message,
         chatUrl,
-        paymentUrl: paymentBaseUrl,
+        paymentUrl,
         supportEmail,
-        ticket: decision.ticket,
+        ticket,
       },
     };
   } catch (error) {
@@ -131,7 +111,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     return {
       props: {
-        error: "We couldn't verify your subscription right now. Our team has been notified.",
+        error: "Не удалось проверить подписку. Попробуйте позже или напишите нам.",
         chatUrl,
         paymentUrl: paymentBaseUrl,
         supportEmail,
@@ -140,4 +120,4 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   }
 };
 
-export default AuthRedirectScreen;
+export default ChatLandingPage;
