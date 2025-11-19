@@ -93,7 +93,7 @@ export type RedirectDecision =
       ticket: AccessTicket;
     };
 
-const buildPaymentUrl = (baseUrl: string, userId: string) => {
+export const buildPaymentUrl = (baseUrl: string, userId: string) => {
   const hasQuery = baseUrl.includes("?");
   const separator = hasQuery ? "&" : "?";
   return `${baseUrl}${separator}user_id=${encodeURIComponent(userId)}`;
