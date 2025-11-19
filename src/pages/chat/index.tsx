@@ -1,9 +1,7 @@
 import type { GetServerSideProps, NextPage } from "next";
 
+import { buildPaymentUrl, resolveAccessTicket } from "../../lib/access-gateway";
 import { ServiceHubPage, type ServiceHubProps } from "@/features/service-hub";
-
-
-type AuthRedirectProps = ServiceHubProps;
 
 const DEFAULT_CHAT_URL = "https://app.gtstor.com/chat/";
 const DEFAULT_PAYMENT_URL = "https://pay.gtstor.com/payment.php";
@@ -73,9 +71,7 @@ const pickFirstIdentifier = (source: Record<string, unknown> | undefined): strin
   return undefined;
 };
 
-const AuthRedirectScreen: NextPage<AuthRedirectProps> = (props) => <ServiceHubPage {...props} />;
-
-const AuthRedirectPage: NextPage<ServiceHubProps> = (props) => <ServiceHubPage {...props} />;
+const ChatLandingPage: NextPage<ServiceHubProps> = (props) => <ServiceHubPage {...props} />;
 
 export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ query, req }) => {
   const rawUserIdFromQuery = pickFirstIdentifier(query as Record<string, unknown> | undefined);
@@ -97,56 +93,31 @@ export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ 
     };
   }
 
-  let buildPaymentUrlFn: ((baseUrl: string, userId: string) => string) | undefined;
-
   try {
-    const { resolveRedirectDecision, buildPaymentUrl } = await import("@/lib/access-gateway");
-    buildPaymentUrlFn = buildPaymentUrl;
-    const decision = await resolveRedirectDecision(userId, {
-      chatUrl,
-      paymentBaseUrl,
-    });
-
-    if (decision.type === "redirect") {
-      if (!decision.ticket.hasChatAccess) {
-        console.info("Routing user to services hub due to inactive subscription", JSON.stringify(decision.ticket));
-      }
-
-      return {
-        redirect: {
-          destination: decision.destination,
-          permanent: false,
-        },
-      };
-    }
-
-    console.warn("Unable to resolve access for user", JSON.stringify(decision.ticket));
-
-    const fallbackUserId = decision.ticket.user?.userId ?? decision.ticket.subscription?.userId ?? userId;
-    const paymentUrl = buildPaymentUrlFn?.(paymentBaseUrl, fallbackUserId) ?? paymentBaseUrl;
+    const ticket = await resolveAccessTicket(userId);
+    const fallbackUserId = ticket.user?.userId ?? ticket.subscription?.userId ?? userId;
+    const paymentUrl = buildPaymentUrl(paymentBaseUrl, fallbackUserId);
 
     return {
       props: {
         chatUrl,
         paymentUrl,
         supportEmail,
-        ticket: decision.ticket,
+        ticket,
       },
     };
   } catch (error) {
     console.error("Failed to determine subscription status", error);
 
-    const fallbackPaymentUrl = userId ? buildPaymentUrlFn?.(paymentBaseUrl, userId) ?? paymentBaseUrl : paymentBaseUrl;
-
     return {
       props: {
         error: "Не удалось проверить подписку. Попробуйте позже или напишите нам.",
         chatUrl,
-        paymentUrl: fallbackPaymentUrl,
+        paymentUrl: paymentBaseUrl,
         supportEmail,
       },
     };
   }
 };
 
-export default AuthRedirectScreen;
+export default ChatLandingPage;
