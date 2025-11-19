@@ -2,13 +2,62 @@ import type { GetServerSideProps, NextPage } from "next";
 import Head from "next/head";
 import { useMemo } from "react";
 
-import { resolveRedirectDecision } from "../../lib/access-gateway";
+import type { AccessDecisionReason, AccessTicket } from "@/lib/access-gateway";
+
 
 type AuthRedirectProps = {
   error?: string;
   supportEmail?: string;
   chatUrl: string;
   paymentUrl: string;
+  ticket?: AccessTicket;
+};
+
+type ServiceCardDescriptor = {
+  key: string;
+  title: string;
+  description: string;
+  badge: string;
+  accent: "active" | "pending" | "soon";
+  action?: {
+    label: string;
+    href: string;
+    variant: "primary" | "secondary";
+  };
+};
+
+const accentClassMap: Record<ServiceCardDescriptor["accent"], string> = {
+  active: "bg-emerald-400/15 text-emerald-200 ring-emerald-400/40",
+  pending: "bg-yellow-400/10 text-yellow-200 ring-yellow-400/30",
+  soon: "bg-slate-500/20 text-slate-200 ring-slate-500/40",
+};
+
+const actionClassMap: Record<NonNullable<ServiceCardDescriptor["action"]>["variant"], string> = {
+  primary:
+    "inline-flex items-center justify-center rounded-lg bg-emerald-400 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-emerald-300",
+  secondary:
+    "inline-flex items-center justify-center rounded-lg border border-slate-600 px-4 py-2 text-sm font-semibold text-slate-100 transition hover:border-slate-400",
+};
+
+const ServiceCard = ({ service }: { service: ServiceCardDescriptor }) => {
+  return (
+    <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 text-left shadow-lg shadow-slate-950/30">
+      <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+        <div>
+          <p className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ring-1 ${accentClassMap[service.accent]}`}>
+            {service.badge}
+          </p>
+          <h3 className="mt-4 text-xl font-semibold text-white">{service.title}</h3>
+          <p className="mt-2 text-sm text-slate-300">{service.description}</p>
+        </div>
+        {service.action ? (
+          <a href={service.action.href} className={actionClassMap[service.action.variant]}>
+            {service.action.label}
+          </a>
+        ) : null}
+      </div>
+    </div>
+  );
 };
 
 const DEFAULT_CHAT_URL = "https://app.gtstor.com/chat/";
@@ -79,8 +128,85 @@ const pickFirstIdentifier = (source: Record<string, unknown> | undefined): strin
   return undefined;
 };
 
-const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, chatUrl, paymentUrl }) => {
+const ACCESS_REASON_COPY: Record<AccessDecisionReason, { title: string; description: string }> = {
+  direct_access: {
+    title: "Включен прямой доступ",
+    description: "Ваш аккаунт отмечен как бета-пользователь, поэтому чат открыт без активной подписки.",
+  },
+  subscription: {
+    title: "Активная подписка",
+    description: "Мы подтвердили действующую подписку и предоставляем доступ ко всем сервисам текущего плана.",
+  },
+  inactive_subscription: {
+    title: "Подписка требует продления",
+    description: "Основные сервисы будут доступны после оплаты следующего периода обслуживания.",
+  },
+  user_not_found: {
+    title: "Не удалось найти аккаунт",
+    description: "Мы не обнаружили запись в базе. Проверьте ссылку из письма или свяжитесь с поддержкой.",
+  },
+};
+
+const AuthRedirectScreen: NextPage<AuthRedirectProps> = ({
+  error,
+  supportEmail,
+  chatUrl,
+  paymentUrl,
+  ticket,
+}) => {
   const supportHref = useMemo(() => `mailto:${supportEmail}`, [supportEmail]);
+  const reasonCopy = ticket ? ACCESS_REASON_COPY[ticket.reason] : undefined;
+  const lookupLabel = ticket?.user?.userId ?? ticket?.lookupId;
+  const services = useMemo<ServiceCardDescriptor[]>(() => {
+    const hasTicket = Boolean(ticket);
+    const hasChatAccess = Boolean(ticket?.hasChatAccess);
+    const hasSubscription = Boolean(ticket?.hasSubscription);
+
+    return [
+      {
+        key: "chat",
+        title: "GTC Chat Assistant",
+        description:
+          "Диалоговый интерфейс, который обрабатывает запросы по закупкам, сравнивает поставщиков и готовит ответы на ваши запросы.",
+        badge: hasChatAccess
+          ? "Доступ открыт"
+          : hasTicket
+            ? "Ожидает подписку"
+            : "Требуется подтверждение",
+        accent: hasChatAccess ? "active" : hasTicket ? "pending" : "soon",
+        action: hasTicket
+          ? {
+              label: hasChatAccess ? "Перейти в чат" : "Оформить подписку",
+              href: hasChatAccess ? chatUrl : paymentUrl,
+              variant: hasChatAccess ? "primary" : "secondary",
+            }
+          : undefined,
+      },
+      {
+        key: "insights",
+        title: "Procurement Insights",
+        description:
+          "Персонализированные аналитические отчёты и уведомления о статусе поставщиков, которые появятся в подписке в ближайшее время.",
+        badge: hasSubscription ? "Подготовка к запуску" : "Требуется подписка",
+        accent: hasSubscription ? "soon" : "pending",
+        action: hasSubscription
+          ? {
+              label: "Сообщить мне о запуске",
+              href: supportHref,
+              variant: "secondary",
+            }
+          : undefined,
+      },
+      {
+        key: "api",
+        title: "Integration API",
+        description:
+          "REST и webhook-интерфейсы для синхронизации данных закупок с ERP/CRM. Доступ появится после запуска интеграций.",
+        badge: "Скоро",
+        accent: "soon",
+      },
+    ];
+  }, [ticket, chatUrl, paymentUrl, supportHref]);
 
   return (
     <main className="flex min-h-screen flex-col items-center justify-center bg-slate-900 px-6 text-center text-slate-100">
@@ -100,6 +226,24 @@ const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, ch
             <p className="mt-2 text-sm text-red-100">
               {error}
             </p>
+            {reasonCopy ? (
+              <dl className="mt-4 space-y-1 text-sm text-slate-100">
+                <div>
+                  <dt className="font-semibold text-white">Причина</dt>
+                  <dd>{reasonCopy.title}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-white">Подробности</dt>
+                  <dd>{reasonCopy.description}</dd>
+                </div>
+                {lookupLabel ? (
+                  <div>
+                    <dt className="font-semibold text-white">Учетная запись</dt>
+                    <dd>{lookupLabel}</dd>
+                  </div>
+                ) : null}
+              </dl>
+            ) : null}
             <p className="mt-4 text-sm text-slate-200">
               Try refreshing the page or contact us at {" "}
               <a href={supportHref} className="underline">
@@ -109,14 +253,36 @@ const AuthRedirectPage: NextPage<AuthRedirectProps> = ({ error, supportEmail, ch
             </p>
           </div>
         ) : (
-          <div className="mt-6 space-y-3 text-left text-sm text-slate-300">
-            <p>
-              <strong>Chat:</strong> {chatUrl}
-            </p>
-            <p>
-              <strong>Payment:</strong> {paymentUrl}
-            </p>
-          </div>
+          <>
+            <div className="mt-6 space-y-3 text-left text-sm text-slate-300">
+              <p>
+                <strong>Chat:</strong> {chatUrl}
+              </p>
+              <p>
+                <strong>Payment:</strong> {paymentUrl}
+              </p>
+            </div>
+            <section className="mt-8 space-y-3 text-left text-sm text-slate-300">
+              <h2 className="text-base font-semibold text-white">Сервисы, доступные вашему аккаунту</h2>
+              <p className="text-xs text-slate-400">
+                После авторизации мы открываем этот центр, чтобы вы могли увидеть продукты, включенные в подписку.
+              </p>
+              <div className="mt-4 space-y-4">
+                {services.map((service) => (
+                  <ServiceCard key={service.key} service={service} />
+                ))}
+              </div>
+            </section>
+            <footer className="mt-8 rounded-3xl border border-slate-800 bg-slate-900/40 p-6 text-left text-sm text-slate-300">
+              <p>
+                Если после авторизации вы все равно видите эту страницу, напишите нам на {" "}
+                <a href={supportHref} className="font-semibold text-white underline">
+                  {supportEmail}
+                </a>{" "}
+                и мы проверим доступ вручную.
+              </p>
+            </footer>
+          </>
         )}
       </div>
     </main>
@@ -144,6 +310,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   }
 
   try {
+    const { resolveRedirectDecision } = await import("@/lib/access-gateway");
     const decision = await resolveRedirectDecision(userId, {
       chatUrl,
       paymentBaseUrl,
@@ -151,10 +318,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     if (decision.type === "redirect") {
       if (!decision.ticket.hasChatAccess) {
-        console.info(
-          "Routing user to payment portal due to inactive subscription",
-          JSON.stringify(decision.ticket)
-        );
+        console.info("Routing user to services hub due to inactive subscription", JSON.stringify(decision.ticket));
       }
 
       return {
@@ -173,6 +337,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
         chatUrl,
         paymentUrl: paymentBaseUrl,
         supportEmail,
+        ticket: decision.ticket,
       },
     };
   } catch (error) {
@@ -189,4 +354,4 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   }
 };
 
-export default AuthRedirectPage;
+export default AuthRedirectScreen;
