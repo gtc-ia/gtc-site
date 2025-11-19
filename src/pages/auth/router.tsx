@@ -75,7 +75,9 @@ const pickFirstIdentifier = (source: Record<string, unknown> | undefined): strin
 
 const AuthRedirectScreen: NextPage<AuthRedirectProps> = (props) => <ServiceHubPage {...props} />;
 
-export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async ({ query, req }) => {
+const AuthRedirectPage: NextPage<ServiceHubProps> = (props) => <ServiceHubPage {...props} />;
+
+export const getServerSideProps: GetServerSideProps<ServiceHubProps> = async ({ query, req }) => {
   const rawUserIdFromQuery = pickFirstIdentifier(query as Record<string, unknown> | undefined);
   const rawUserIdFromCookies = pickFirstIdentifier(req.cookies as Record<string, unknown> | undefined);
   const userId = rawUserIdFromQuery ?? rawUserIdFromCookies;
@@ -87,7 +89,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
   if (!userId) {
     return {
       props: {
-        error: "We could not determine your account. Please return to the login page and try again.",
+        error: "Мы не смогли определить ваш аккаунт. Вернитесь к форме входа и попробуйте ещё раз.",
         chatUrl,
         paymentUrl: paymentBaseUrl,
         supportEmail,
@@ -125,7 +127,6 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     return {
       props: {
-        error: decision.message,
         chatUrl,
         paymentUrl,
         supportEmail,
@@ -139,7 +140,7 @@ export const getServerSideProps: GetServerSideProps<AuthRedirectProps> = async (
 
     return {
       props: {
-        error: "We couldn't verify your subscription right now. Our team has been notified.",
+        error: "Не удалось проверить подписку. Попробуйте позже или напишите нам.",
         chatUrl,
         paymentUrl: fallbackPaymentUrl,
         supportEmail,
