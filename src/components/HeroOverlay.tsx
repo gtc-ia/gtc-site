@@ -15,7 +15,7 @@ export default function HeroOverlay() {
           rel="noopener noreferrer"
           className={`${buttonBase} bg-cyan-300 text-[#0b1220] hover:brightness-110 focus-visible:outline-cyan-200`}
         >
-          Launch AI assistant
+          Telegram Consultant
         </a>
         <a
           href="https://app.gtstor.com/news/"
@@ -26,12 +26,12 @@ export default function HeroOverlay() {
           Read the news
         </a>
         <a
-          href="https://app.gtstor.com/auth/"
+          href="https://app.gtstor.com/user/"
           target="_blank"
           rel="noopener noreferrer"
           className={`${buttonBase} bg-emerald-400 text-[#0b1220] hover:brightness-110 focus-visible:outline-emerald-200`}
         >
-          Get access
+          Web Chat Consultant
         </a>
       </div>
       <div className="mt-10 flex flex-col items-center gap-4">
